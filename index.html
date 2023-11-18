@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
+    <script src="jquery.min.js"></script>
+    <script src="signalr.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="container" id="subscribeContainer">
+        <h1 class="text-center" style="margin-top: 5px;">Subscribe</h1>
+
+        <div class="form-control" style="width: 50%; height: 60%;">
+            <form>
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input type="text" class="form-control" id="name" placeholder="Type your name...">
+                </div>
+                <div class="form-group">
+                  <label for="color">Color</label>
+                  <select class="form-control" id="color">
+                    <option value="#C70039">Red</option>
+                    <option value="#176B87">Blue</option>
+                    <option value="#CD5C08">Orange</option>
+                    <option value="#005B41">Green</option>
+                    <option value="#EBE3D5">Grey</option>
+                    <option value="#610C9F">Purple</option>
+                    <option value="#0F0F0F">Black</option>
+                    <option value="#776B5D">Brown</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary float-end" id="subscribe">Subscribe</button>
+              </form>
+        </div>
+    </div>
+
+    <div id="chatContainer" style="height: 100vh;">
+        <h1 class="text-lg-start w-100" style="margin-left: 15px; margin-top: 15px;"></h1>
+        <div class="d-grid w-100" style="height: 85vh;">
+            <div id="state">
+
+            </div>
+            <div class="row h-100">
+                <div class="col-4">
+                    <div class="row h-50">
+                        <div class="form-group">
+                            <label for="groups">Groups</label>
+                            <select class="form-select" multiple aria-label="multiple select example" id="group-select">
+                                <option selected value="-1">Select the group</option>
+                              </select>
+                          </div>
+                          <div class="form-group">
+                            <button class="btn btn-success" id="addGroup"><i class="fa-regular fa-square-plus"></i> Create Group</button>
+                          </div>
+                    </div>
+                    <div class="row h-50">
+                        <div class="form-group">
+                            <label for="groups">People</label>
+                            <select class="form-select" multiple aria-label="multiple select example" id="person-select">
+                                <option selected value="-1">Select the person</option>
+                            </select>
+                          </div>
+                    </div>
+                </div>
+                <div class="col-8 h-100">
+                    <h2 id="receiver"></h2>
+                    <div class="position-relative" style="height: 65vh; overflow: scroll; display: none;" id="messageContainer">
+						
+						<div class="chat-messages p-4">
+
+						</div>
+					</div>
+
+					<div class="flex-grow-0 py-3 px-4 border-top">
+						<div class="input-group">
+							<input type="text" class="form-control" id="message" placeholder="Type your message">
+							<button class="btn btn-primary" id="sendMessage">Send</button>
+						</div>
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Create Group</h5>
+              <button type="button" class="close" onclick="closeModal()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <input type="text" id="groupName" placeholder="Group Name...">
+
+                <ul class="list-group" id="clientsForGroup">
+                    <li class="list-group-item">
+                        <h2>Clients</h2>
+                    </li>
+                    
+                  </ul>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" onclick="closeModal()" data-dismiss="modal">Close</button>
+              <button type="button" id="createGroup" class="btn btn-primary">Create Group</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <script src="script.js"></script>
+</body>
+</html>
