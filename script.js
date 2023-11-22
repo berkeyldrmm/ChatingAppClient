@@ -15,45 +15,46 @@ class ChatApp{
     }
 
     static displayMessageBox(name, connectionId){
-        let html="";
+        if(connectionId!="-1"){
+            let html="";
 
-        ChatApp.messages.forEach(message => {
-            if((message.toGroup && message.to==connectionId) || (message.fromConnectionId==connectionId && message.to=="me") || (message.to==connectionId)){
-                
-                let position=(message.fromConnectionId!=ChatApp.connectionId) ? "chat-message-left" : "chat-message-right";
-                let from=(message.fromConnectionId==ChatApp.connectionId) ? "Me" : message.fromName;
-                let margin=(message.fromConnectionId==ChatApp.connectionId) ? "mr-3" : "ml-3";
-                let color=(message.fromConnectionId==ChatApp.connectionId) ? ChatApp.color : message.fromColor;
+            ChatApp.messages.forEach(message => {
+                if((message.toGroup && message.to==connectionId) || (message.fromConnectionId==connectionId && message.to=="me") || (message.to==connectionId)){
+                    
+                    let position=(message.fromConnectionId!=ChatApp.connectionId) ? "chat-message-left" : "chat-message-right";
+                    let from=(message.fromConnectionId==ChatApp.connectionId) ? "Me" : message.fromName;
+                    let margin=(message.fromConnectionId==ChatApp.connectionId) ? "mr-3" : "ml-3";
+                    let color=(message.fromConnectionId==ChatApp.connectionId) ? ChatApp.color : message.fromColor;
 
-                html+=`
-                    <div class="${position} pb-4">
-                        <div>
-                            <div class="rounded-circle mr-1" style="background-color: ${color}; width: 40px; height: 40px;"></div>
-                            <div class="text-muted small text-nowrap mt-2">${message.time}</div>
+                    html+=`
+                        <div class="${position} pb-4">
+                            <div>
+                                <div class="rounded-circle mr-1" style="background-color: ${color}; width: 40px; height: 40px;"></div>
+                                <div class="text-muted small text-nowrap mt-2">${message.time}</div>
+                            </div>
+                            <div class="flex-shrink-1 bg-light rounded py-2 px-3 ${margin}">
+                                <div class="font-weight-bold mb-1">${from}</div>
+                                ${message.message}
+                            </div>
                         </div>
-                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 ${margin}">
-                            <div class="font-weight-bold mb-1">${from}</div>
-                            ${message.message}
-                        </div>
-                    </div>
-                `;
-            }
+                    `;
+                }
 
-        });
+            });
 
-        $("#messageContainer").html(html);
-        $("#messageContainer").css("display","block");
-        $("#receiver").html(name);
-        console.log(ChatApp.to);
-        setTimeout(()=>{
-            if(ChatApp.to.Color!=null){
-                $("#receiver").css("color", ChatApp.to.Color);
-            }
-            else{
-                $("#receiver").css("color","black");
-            }
-        },10);
-        
+            $("#messageContainer").html(html);
+            $("#messageContainer").css("display","block");
+            $("#receiver").html(name);
+            setTimeout(()=>{
+                if(ChatApp.to.Color!=null){
+                    $("#receiver").css("color", ChatApp.to.Color);
+                }
+                else{
+                    $("#receiver").css("color","black");
+                }
+            },10);
+            
+        }
     }
 }
 class Message{
@@ -68,7 +69,7 @@ class Message{
     }
 }
 
-const connection = new signalR.HubConnectionBuilder().withAutomaticReconnect().withUrl("https://localhost:44319/chatHub", {
+const connection = new signalR.HubConnectionBuilder().withAutomaticReconnect().withUrl("https://localhost:7256/chatHub", {
     skipNegotiation: true,
     transport: signalR.HttpTransportType.WebSockets
 }).build();
@@ -152,7 +153,7 @@ $(document).ready(() => {
 
             connection.on("UserJoin", (name2) => {
                 state.css("background-color", "green");
-                state.html("<p> " + name2 + " sohbete katıldı.</p><br>");
+                state.html("<p> " + name2 + " joined to chat.</p><br>");
                 ChatApp.stateAnimation(state);
             });
 
@@ -200,14 +201,13 @@ $(document).ready(() => {
 
             connection.on("UserLeave", name2 => {
                 state.css("background-color", "red");
-                state.html("<p> " + name2 + " sohbetten ayrıldı..</p><br>");
+                state.html("<p> " + name2 + " left the chat..</p><br>");
                 ChatApp.stateAnimation(state);
             });
 
             connection.on("SendMessage", (textMessage, toGroup, from_json, groupName) => {
-                console.log("mesaj alındı..");
                 let from=JSON.parse(from_json);
-                let to= (toGroup) ? groupName : "me" ;
+                let to= (toGroup) ? groupName : "me";
                 if(from.Name!=ChatApp.name)
                     ChatApp.messages.push(new Message(from.Name, from.Color, from.ConnectionId, textMessage, to, toGroup, new Date().toLocaleTimeString()));
                 
@@ -222,32 +222,31 @@ $(document).ready(() => {
 
             connection.on("Error", message=>{
                 state.html(message);
-                ChatApp.stateAnimation();
+                ChatApp.stateAnimation(state);
             })
 
             connection.onreconnecting(error => {
                 state.css("background-color", "grey");
                 state.css("color", "white");
-                state.html("Bağlantı kuruluyor... " + error);
-                ChatApp.stateAnimation();
+                state.html("Trying to reconnect... Error message: " + error);
+                ChatApp.stateAnimation(state);
             });
     
             connection.onreconnected(connectionId => {
                 state.css("background-color", "green");
                 state.css("color", "white");
-                state.html("Bağlantı kuruldu...");
-                ChatApp.stateAnimation();
+                state.html("Reconnected...");
+                ChatApp.stateAnimation(state);
             });
     
             connection.onclose(connectionId => {
                 state.css("background-color", "red");
                 state.css("color", "white");
-                state.html("Bağlantı kurulamadı...");
+                state.html("Couldn't reconnected...");
                 ChatApp.stateAnimation();
             });
 
         } catch (error) {
-            //connection.stop();
             setTimeout(() => {
                 start();
                 console.error(error);
